@@ -9,8 +9,8 @@
 
   <style>
     :root {
-      --bg: #000000;
-      --card: #616569;
+      --bg: #f4f1ea;
+      --card: #fffdf8;
       --text: #171717;
       --muted: #68645d;
       --border: rgba(23, 23, 23, .12);
@@ -30,8 +30,10 @@
       display: grid;
       place-items: center;
       color: var(--text);
-      background: #000000
-      var(--bg);
+      background:
+        radial-gradient(circle at 12% 8%, rgba(255,255,255,.95), transparent 32rem),
+        radial-gradient(circle at 88% 90%, rgba(255,255,255,.8), transparent 28rem),
+        var(--bg);
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
                    "Segoe UI", sans-serif;
     }
@@ -61,16 +63,17 @@
       width: 92px;
       height: 92px;
       margin: 2px auto 17px;
-      display: grid;
-      place-items: center;
+      overflow: hidden;
       border-radius: 50%;
-      color: white;
-      background:
-        linear-gradient(145deg, rgba(255,255,255,.25), transparent),
-        #171717;
-      font-size: 40px;
+      background: #171717;
       box-shadow: 0 12px 30px rgba(23,23,23,.22);
-      user-select: none;
+    }
+
+    .avatar img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
     }
 
     h1 {
@@ -217,66 +220,6 @@
       line-height: 1.45;
     }
 
-    .share-row {
-      margin-top: 18px;
-      display: flex;
-      justify-content: center;
-      gap: 9px;
-    }
-
-    .small-button {
-      min-height: 42px;
-      padding: 0 14px;
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      color: var(--text);
-      background: rgba(255,255,255,.55);
-      font: inherit;
-      font-size: 13px;
-      font-weight: 720;
-      cursor: pointer;
-    }
-
-    dialog {
-      width: min(calc(100% - 28px), 390px);
-      padding: 22px;
-      border: 0;
-      border-radius: 24px;
-      color: var(--text);
-      background: var(--card);
-      box-shadow: var(--shadow);
-    }
-
-    dialog::backdrop {
-      background: rgba(0,0,0,.55);
-      backdrop-filter: blur(5px);
-    }
-
-    dialog h2 { margin: 0 0 7px; }
-    dialog p { color: var(--muted); font-size: 14px; line-height: 1.5; }
-
-    #qrImage {
-      width: 230px;
-      height: 230px;
-      margin: 16px auto;
-      display: block;
-      border: 12px solid white;
-      border-radius: 18px;
-      background: white;
-    }
-
-    .dialog-actions {
-      display: flex;
-      justify-content: center;
-    }
-
-    .footer {
-      padding: 15px 5px 0;
-      color: var(--muted);
-      text-align: center;
-      font-size: 11px;
-    }
-
     @media (max-width: 370px) {
       body { padding: 12px; }
       .card { padding: 20px; }
@@ -293,7 +236,7 @@
   <main class="shell">
     <section class="card" aria-labelledby="performerName">
       <div class="hero">
-        <div class="avatar" id="avatar" aria-hidden="true">🎵</div>
+        <div class="avatar" id="avatar"></div>
         <h1 id="performerName">Maya Rivers</h1>
         <p class="tagline" id="tagline">
           Thanks for supporting live music. Pick an amount, then choose your payment app.
@@ -351,10 +294,7 @@
       <p class="note">
         Payments are completed by the selected payment provider. This page does not collect card or banking details.
       </p>
-
     </section>
-
-
   </main>
 
   <script>
@@ -374,19 +314,23 @@
         Set your $cashtag without the $ symbol.
         The selected amount will be added automatically.
 
-      Set any username to an empty string ("") to hide that button.
+      Name and photo:
+        Change performerName whenever you want.
+        Put your photo in the same folder as this file and set avatarImage
+        to the exact filename, including capitalization and extension.
+
+      Set any payment username to an empty string ("") to hide that button.
     */
     const CONFIG = {
-      performerName: "Out Of Shape",
-      tagline: "Thank you for supporting live music! Pick an amount, then choose your payment app.",
-      avatarImage: "profile.jpg",
+      performerName: "Maya Rivers",
+      tagline: "Thanks for supporting live music. Pick an amount, then choose your payment app.",
+      avatarImage: "profile.jpg", // Put this image in the same folder as index.html.
 
       paypalMe: "YOUR_PAYPAL_USERNAME",
-      venmoUsername: "jsantee",
+      venmoUsername: "YOUR_VENMO_USERNAME",
       cashTag: "YOUR_CASHTAG",
 
-      defaultAmount: 10,
-      pageUrl: "" // Optional: set your final hosted URL for the QR code.
+      defaultAmount: 10
     };
     // ===============================================================
 
@@ -398,7 +342,11 @@
 
     document.getElementById("performerName").textContent = CONFIG.performerName;
     document.getElementById("tagline").textContent = CONFIG.tagline;
-    document.getElementById("avatar").innerHTML = <img src="${CONFIG.avatarimage}" alt="${CONFIG.performerName}">`;
+    const avatar = document.getElementById("avatar");
+    const avatarImage = document.createElement("img");
+    avatarImage.src = CONFIG.avatarImage;
+    avatarImage.alt = CONFIG.performerName;
+    avatar.appendChild(avatarImage);
 
     function cleanAmount(value) {
       const number = Number(value);
@@ -432,7 +380,7 @@
       }
 
       if (CONFIG.venmoUsername && !CONFIG.venmoUsername.startsWith("YOUR_")) {
-        const note = encodeURIComponent(`🎵`);
+        const note = encodeURIComponent(`Tip for ${CONFIG.performerName}`);
         const amountParam = amount ? `&amount=${encodeURIComponent(amount)}` : "";
         venmo.href = `https://venmo.com/?txn=pay&recipients=${encodeURIComponent(CONFIG.venmoUsername)}${amountParam}&note=${note}`;
       }
@@ -473,38 +421,6 @@
     );
     if (defaultButton) selectPreset(defaultButton);
     else updatePaymentLinks();
-
-    const qrDialog = document.getElementById("qrDialog");
-    const qrImage = document.getElementById("qrImage");
-
-    document.getElementById("qrButton").addEventListener("click", () => {
-      const targetUrl = CONFIG.pageUrl || window.location.href.split("#")[0];
-      qrImage.src =
-        "https://api.qrserver.com/v1/create-qr-code/?size=460x460&margin=12&data=" +
-        encodeURIComponent(targetUrl);
-      qrDialog.showModal();
-    });
-
-    document.getElementById("closeQr").addEventListener("click", () => qrDialog.close());
-
-    document.getElementById("shareButton").addEventListener("click", async () => {
-      const shareData = {
-        title: `Tip ${CONFIG.performerName}`,
-        text: `Support ${CONFIG.performerName}`,
-        url: CONFIG.pageUrl || window.location.href
-      };
-
-      try {
-        if (navigator.share) {
-          await navigator.share(shareData);
-        } else {
-          await navigator.clipboard.writeText(shareData.url);
-          alert("Page link copied.");
-        }
-      } catch (error) {
-        // User cancellation does not need an error message.
-      }
-    });
   </script>
 </body>
 </html>
