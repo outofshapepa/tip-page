@@ -432,7 +432,7 @@
       }
 
       if (CONFIG.venmoUsername && !CONFIG.venmoUsername.startsWith("YOUR_")) {
-        const note = encodeURIComponent(`🎵{CONFIG.performerName}`);
+        const note = encodeURIComponent(`🎵`);
         const amountParam = amount ? `&amount=${encodeURIComponent(amount)}` : "";
         venmo.href = `https://venmo.com/?txn=pay&recipients=${encodeURIComponent(CONFIG.venmoUsername)}${amountParam}&note=${note}`;
       }
