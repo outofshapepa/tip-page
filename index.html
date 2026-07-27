@@ -1,0 +1,525 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#171717" />
+  <title>Tip the Performer</title>
+  <meta name="description" content="A fast, QR-friendly digital tip page for performers." />
+
+  <style>
+    :root {
+      --bg: #f4f1ea;
+      --card: #fffdf8;
+      --text: #171717;
+      --muted: #68645d;
+      --border: rgba(23, 23, 23, .12);
+      --accent: #171717;
+      --accent-text: #ffffff;
+      --shadow: 0 22px 60px rgba(23, 23, 23, .13);
+      --radius: 28px;
+    }
+
+    * { box-sizing: border-box; }
+    html { min-height: 100%; background: var(--bg); }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      padding: 22px;
+      display: grid;
+      place-items: center;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 12% 8%, rgba(255,255,255,.95), transparent 32rem),
+        radial-gradient(circle at 88% 90%, rgba(255,255,255,.8), transparent 28rem),
+        var(--bg);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+                   "Segoe UI", sans-serif;
+    }
+
+    button, a { -webkit-tap-highlight-color: transparent; }
+
+    .shell {
+      width: min(100%, 430px);
+    }
+
+    .card {
+      position: relative;
+      overflow: hidden;
+      padding: 26px;
+      border: 1px solid rgba(255,255,255,.9);
+      border-radius: var(--radius);
+      background: rgba(255,253,248,.94);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(15px);
+    }
+
+    .hero {
+      text-align: center;
+    }
+
+    .avatar {
+      width: 92px;
+      height: 92px;
+      margin: 2px auto 17px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      color: white;
+      background:
+        linear-gradient(145deg, rgba(255,255,255,.25), transparent),
+        #171717;
+      font-size: 40px;
+      box-shadow: 0 12px 30px rgba(23,23,23,.22);
+      user-select: none;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(28px, 8vw, 38px);
+      letter-spacing: -0.04em;
+      line-height: 1.03;
+    }
+
+    .tagline {
+      margin: 10px auto 0;
+      max-width: 31ch;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.55;
+    }
+
+    .amount-label {
+      margin: 26px 0 10px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 750;
+      letter-spacing: .11em;
+      text-transform: uppercase;
+    }
+
+    .amount-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 9px;
+    }
+
+    .amount {
+      min-height: 52px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      color: var(--text);
+      background: transparent;
+      font: inherit;
+      font-weight: 760;
+      cursor: pointer;
+      transition: transform .16s ease, background .16s ease, color .16s ease,
+                  border-color .16s ease;
+    }
+
+    .amount:hover { transform: translateY(-1px); }
+
+    .amount.active {
+      color: var(--accent-text);
+      border-color: var(--accent);
+      background: var(--accent);
+    }
+
+    .custom-wrap {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      margin-top: 10px;
+      padding: 0 14px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: white;
+    }
+
+    .custom-wrap.visible { display: flex; }
+
+    .currency {
+      font-weight: 800;
+      color: var(--muted);
+    }
+
+    #customAmount {
+      width: 100%;
+      min-height: 52px;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      font: inherit;
+      font-size: 18px;
+      font-weight: 760;
+    }
+
+    .payment-list {
+      display: grid;
+      gap: 11px;
+      margin-top: 20px;
+    }
+
+    .pay-button {
+      min-height: 60px;
+      padding: 0 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      border: 0;
+      border-radius: 18px;
+      color: white;
+      text-decoration: none;
+      font-weight: 800;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.16);
+      transition: transform .16s ease, filter .16s ease;
+    }
+
+    .pay-button:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.03);
+    }
+
+    .pay-button:active { transform: scale(.99); }
+
+    .pay-button.disabled {
+      opacity: .45;
+      pointer-events: none;
+    }
+
+    .paypal { background: #123a72; }
+    .venmo { background: #1688f0; }
+    .cashapp { background: #111; }
+
+    .pay-copy {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .pay-icon {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border-radius: 11px;
+      background: rgba(255,255,255,.15);
+      font-size: 18px;
+    }
+
+    .arrow { opacity: .72; font-size: 19px; }
+
+    .note {
+      margin: 17px 4px 0;
+      color: var(--muted);
+      text-align: center;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .share-row {
+      margin-top: 18px;
+      display: flex;
+      justify-content: center;
+      gap: 9px;
+    }
+
+    .small-button {
+      min-height: 42px;
+      padding: 0 14px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      color: var(--text);
+      background: rgba(255,255,255,.55);
+      font: inherit;
+      font-size: 13px;
+      font-weight: 720;
+      cursor: pointer;
+    }
+
+    dialog {
+      width: min(calc(100% - 28px), 390px);
+      padding: 22px;
+      border: 0;
+      border-radius: 24px;
+      color: var(--text);
+      background: var(--card);
+      box-shadow: var(--shadow);
+    }
+
+    dialog::backdrop {
+      background: rgba(0,0,0,.55);
+      backdrop-filter: blur(5px);
+    }
+
+    dialog h2 { margin: 0 0 7px; }
+    dialog p { color: var(--muted); font-size: 14px; line-height: 1.5; }
+
+    #qrImage {
+      width: 230px;
+      height: 230px;
+      margin: 16px auto;
+      display: block;
+      border: 12px solid white;
+      border-radius: 18px;
+      background: white;
+    }
+
+    .dialog-actions {
+      display: flex;
+      justify-content: center;
+    }
+
+    .footer {
+      padding: 15px 5px 0;
+      color: var(--muted);
+      text-align: center;
+      font-size: 11px;
+    }
+
+    @media (max-width: 370px) {
+      body { padding: 12px; }
+      .card { padding: 20px; }
+      .amount-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { scroll-behavior: auto !important; transition: none !important; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="shell">
+    <section class="card" aria-labelledby="performerName">
+      <div class="hero">
+        <div class="avatar" id="avatar" aria-hidden="true">🎵</div>
+        <h1 id="performerName">Maya Rivers</h1>
+        <p class="tagline" id="tagline">
+          Thanks for supporting live music. Pick an amount, then choose your payment app.
+        </p>
+      </div>
+
+      <p class="amount-label">Choose a tip</p>
+
+      <div class="amount-grid" role="group" aria-label="Tip amount">
+        <button class="amount" data-amount="5" type="button">$5</button>
+        <button class="amount active" data-amount="10" type="button">$10</button>
+        <button class="amount" data-amount="20" type="button">$20</button>
+        <button class="amount" data-amount="custom" type="button">Other</button>
+      </div>
+
+      <label class="custom-wrap" id="customWrap">
+        <span class="currency">$</span>
+        <input
+          id="customAmount"
+          type="number"
+          inputmode="decimal"
+          min="1"
+          step="1"
+          placeholder="Enter amount"
+          aria-label="Custom tip amount"
+        />
+      </label>
+
+      <div class="payment-list" id="paymentList">
+        <a class="pay-button paypal" id="paypalButton" href="#" rel="noopener">
+          <span class="pay-copy">
+            <span class="pay-icon">P</span>
+            <span>Tip with PayPal</span>
+          </span>
+          <span class="arrow">→</span>
+        </a>
+
+        <a class="pay-button venmo" id="venmoButton" href="#" rel="noopener">
+          <span class="pay-copy">
+            <span class="pay-icon">V</span>
+            <span>Tip with Venmo</span>
+          </span>
+          <span class="arrow">→</span>
+        </a>
+
+        <a class="pay-button cashapp" id="cashappButton" href="#" rel="noopener">
+          <span class="pay-copy">
+            <span class="pay-icon">$</span>
+            <span>Tip with Cash App</span>
+          </span>
+          <span class="arrow">→</span>
+        </a>
+      </div>
+
+      <p class="note">
+        Payments are completed by the selected payment provider. This page does not collect card or banking details.
+      </p>
+
+      <div class="share-row">
+        <button class="small-button" id="shareButton" type="button">Share page</button>
+        <button class="small-button" id="qrButton" type="button">Show QR</button>
+      </div>
+    </section>
+
+    <p class="footer">Made for live performers · One page, fewer taps</p>
+  </main>
+
+  <dialog id="qrDialog">
+    <h2>Scan to tip</h2>
+    <p>Print or display this QR code near the performer.</p>
+    <img id="qrImage" alt="QR code for this tipping page" />
+    <div class="dialog-actions">
+      <button class="small-button" id="closeQr" type="button">Close</button>
+    </div>
+  </dialog>
+
+  <script>
+    /*
+      ===============================================================
+      EDIT ONLY THIS SECTION
+      ===============================================================
+      PayPal:
+        Use your PayPal.Me username, such as "MayaRiversMusic".
+        The selected amount will be added automatically.
+
+      Venmo:
+        Set your username without the @ symbol.
+        Note: Venmo's web/deep-link behavior can vary by device.
+
+      Cash App:
+        Set your $cashtag without the $ symbol.
+        The selected amount will be added automatically.
+
+      Set any username to an empty string ("") to hide that button.
+    */
+    const CONFIG = {
+      performerName: "Maya Rivers",
+      tagline: "Thanks for supporting live music. Pick an amount, then choose your payment app.",
+      avatarEmoji: "🎵",
+
+      paypalMe: "YOUR_PAYPAL_USERNAME",
+      venmoUsername: "YOUR_VENMO_USERNAME",
+      cashTag: "YOUR_CASHTAG",
+
+      defaultAmount: 10,
+      pageUrl: "" // Optional: set your final hosted URL for the QR code.
+    };
+    // ===============================================================
+
+    const amountButtons = [...document.querySelectorAll(".amount")];
+    const customWrap = document.getElementById("customWrap");
+    const customAmount = document.getElementById("customAmount");
+
+    let selectedAmount = Number(CONFIG.defaultAmount) || 10;
+
+    document.getElementById("performerName").textContent = CONFIG.performerName;
+    document.getElementById("tagline").textContent = CONFIG.tagline;
+    document.getElementById("avatar").textContent = CONFIG.avatarEmoji;
+
+    function cleanAmount(value) {
+      const number = Number(value);
+      if (!Number.isFinite(number) || number <= 0) return "";
+      return Number.isInteger(number) ? String(number) : number.toFixed(2);
+    }
+
+    function currentAmount() {
+      return cleanAmount(selectedAmount);
+    }
+
+    function setButtonVisibility(element, configuredValue) {
+      if (!configuredValue || configuredValue.startsWith("YOUR_")) {
+        element.style.display = "none";
+      }
+    }
+
+    function updatePaymentLinks() {
+      const amount = currentAmount();
+
+      const paypal = document.getElementById("paypalButton");
+      const venmo = document.getElementById("venmoButton");
+      const cashapp = document.getElementById("cashappButton");
+
+      setButtonVisibility(paypal, CONFIG.paypalMe);
+      setButtonVisibility(venmo, CONFIG.venmoUsername);
+      setButtonVisibility(cashapp, CONFIG.cashTag);
+
+      if (CONFIG.paypalMe && !CONFIG.paypalMe.startsWith("YOUR_")) {
+        paypal.href = `https://paypal.me/${encodeURIComponent(CONFIG.paypalMe)}${amount ? "/" + amount : ""}`;
+      }
+
+      if (CONFIG.venmoUsername && !CONFIG.venmoUsername.startsWith("YOUR_")) {
+        const note = encodeURIComponent(`Tip for ${CONFIG.performerName}`);
+        const amountParam = amount ? `&amount=${encodeURIComponent(amount)}` : "";
+        venmo.href = `https://venmo.com/?txn=pay&recipients=${encodeURIComponent(CONFIG.venmoUsername)}${amountParam}&note=${note}`;
+      }
+
+      if (CONFIG.cashTag && !CONFIG.cashTag.startsWith("YOUR_")) {
+        cashapp.href = `https://cash.app/$${encodeURIComponent(CONFIG.cashTag)}${amount ? "/" + amount : ""}`;
+      }
+    }
+
+    function selectPreset(button) {
+      amountButtons.forEach(item => item.classList.remove("active"));
+      button.classList.add("active");
+
+      if (button.dataset.amount === "custom") {
+        customWrap.classList.add("visible");
+        customAmount.focus();
+        selectedAmount = customAmount.value || "";
+      } else {
+        customWrap.classList.remove("visible");
+        selectedAmount = Number(button.dataset.amount);
+      }
+
+      updatePaymentLinks();
+    }
+
+    amountButtons.forEach(button => {
+      button.addEventListener("click", () => selectPreset(button));
+    });
+
+    customAmount.addEventListener("input", () => {
+      selectedAmount = customAmount.value;
+      updatePaymentLinks();
+    });
+
+    // Match the configured default amount when possible.
+    const defaultButton = amountButtons.find(
+      button => Number(button.dataset.amount) === Number(CONFIG.defaultAmount)
+    );
+    if (defaultButton) selectPreset(defaultButton);
+    else updatePaymentLinks();
+
+    const qrDialog = document.getElementById("qrDialog");
+    const qrImage = document.getElementById("qrImage");
+
+    document.getElementById("qrButton").addEventListener("click", () => {
+      const targetUrl = CONFIG.pageUrl || window.location.href.split("#")[0];
+      qrImage.src =
+        "https://api.qrserver.com/v1/create-qr-code/?size=460x460&margin=12&data=" +
+        encodeURIComponent(targetUrl);
+      qrDialog.showModal();
+    });
+
+    document.getElementById("closeQr").addEventListener("click", () => qrDialog.close());
+
+    document.getElementById("shareButton").addEventListener("click", async () => {
+      const shareData = {
+        title: `Tip ${CONFIG.performerName}`,
+        text: `Support ${CONFIG.performerName}`,
+        url: CONFIG.pageUrl || window.location.href
+      };
+
+      try {
+        if (navigator.share) {
+          await navigator.share(shareData);
+        } else {
+          await navigator.clipboard.writeText(shareData.url);
+          alert("Page link copied.");
+        }
+      } catch (error) {
+        // User cancellation does not need an error message.
+      }
+    });
+  </script>
+</body>
+</html>
