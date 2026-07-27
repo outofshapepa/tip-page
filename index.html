@@ -379,7 +379,7 @@
     const CONFIG = {
       performerName: "Out Of Shape",
       tagline: "Thank you for supporting live music! Pick an amount, then choose your payment app.",
-      avatarEmoji: "profile.jpg",
+      avatarImage: "profile.jpg",
 
       paypalMe: "YOUR_PAYPAL_USERNAME",
       venmoUsername: "jsantee",
@@ -398,7 +398,7 @@
 
     document.getElementById("performerName").textContent = CONFIG.performerName;
     document.getElementById("tagline").textContent = CONFIG.tagline;
-    document.getElementById("avatar").textContent = CONFIG.avatarEmoji;
+    document.getElementById("avatar").innerHTML = <img src="${CONFIG.avatarimage}" alt="${CONFIG.performerName}">`;
 
     function cleanAmount(value) {
       const number = Number(value);
