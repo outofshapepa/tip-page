@@ -433,5 +433,32 @@
     if (defaultButton) selectPreset(defaultButton);
     else updatePaymentLinks();
   </script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+ 
+  const paymentButtons = {
+    paypal: "PayPal",
+    venmo: "Venmo",
+    cashapp: "Cash App"
+  };
+ 
+  Object.entries(paymentButtons).forEach(([id, name]) => {
+    const button = document.getElementById(id);
+ 
+    if (button) {
+      button.addEventListener("click", function () {
+ 
+        if (typeof gtag === "function") {
+          gtag("event", "payment_click", {
+            payment_method: name
+          });
+        }
+ 
+      });
+    }
+  });
+ 
+});
+</script>
 </body>
 </html>
