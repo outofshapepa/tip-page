@@ -433,32 +433,5 @@
     if (defaultButton) selectPreset(defaultButton);
     else updatePaymentLinks();
   </script>
-<script>
-document.addEventListener("click", function(event) {
- 
-  const button = event.target.closest("a");
- 
-  if (!button) return;
- 
-  const paymentButtons = {
-    paypalButton: "PayPal",
-    venmoButton: "Venmo",
-    cashappButton: "Cash App"
-  };
- 
-  const paymentMethod = paymentButtons[button.id];
- 
-  if (paymentMethod && typeof gtag === "function") {
- 
-    gtag("event", "payment_click", {
-      payment_method: paymentMethod,
-      transport_type: "beacon"
-    });
- 
-    console.log("Payment click tracked:", paymentMethod);
-  }
- 
-});
-</script>
 </body>
 </html>
