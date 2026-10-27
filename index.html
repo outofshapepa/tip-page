@@ -433,37 +433,5 @@
     if (defaultButton) selectPreset(defaultButton);
     else updatePaymentLinks();
   </script>
-<script>
-(function () {
-  const paymentButtons = {
-    paypalButton: "PayPal",
-    venmoButton: "Venmo",
-    cashappButton: "Cash App"
-  };
- 
-  document.addEventListener("click", function (event) {
-    const button = event.target.closest(
-      "#paypalButton, #venmoButton, #cashappButton"
-    );
- 
-    if (!button) return;
- 
-    const method = paymentButtons[button.id];
- 
-    console.log("Payment button clicked:", method);
- 
-    if (typeof window.gtag === "function") {
-      window.gtag("event", "payment_click", {
-        payment_method: method,
-        debug_mode: true
-      });
- 
-      console.log("Event sent to Google Analytics");
-    } else {
-      console.warn("Google Analytics is not available");
-    }
-  });
-})();
-</script>
 </body>
 </html>
