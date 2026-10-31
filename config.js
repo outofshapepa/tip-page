@@ -1,3 +1,3 @@
 window.SHOW_CONFIG = {
-  showName: "Tonight's Gig"
+  showName: "Test Show"
 };
